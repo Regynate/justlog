@@ -135,6 +135,8 @@ func (b *Bot) Join(channelNames ...string) {
 
 func (b *Bot) newClient() *twitch.Client {
 	client := twitch.NewClient(b.cfg.Username, "oauth:"+b.cfg.OAuth)
+	client.IrcAddress = b.cfg.Server;
+	
 	if b.cfg.BotVerified {
 		client.SetJoinRateLimiter(twitch.CreateVerifiedRateLimiter())
 	}
