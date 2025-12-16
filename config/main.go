@@ -19,6 +19,7 @@ type Config struct {
 	AdminAPIKey           string          `json:"adminAPIKey"`
 	Username              string          `json:"username"`
 	OAuth                 string          `json:"oauth"`
+	Server                string          `json:"server"`
 	ListenAddress         string          `json:"listenAddress"`
 	Admins                []string        `json:"admins"`
 	Channels              []string        `json:"channels"`
