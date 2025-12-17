@@ -20,6 +20,7 @@ type Config struct {
 	Username              string          `json:"username"`
 	OAuth                 string          `json:"oauth"`
 	Server                string          `json:"server"`
+	ApiServer             string          `json:"apiserver"`
 	ListenAddress         string          `json:"listenAddress"`
 	Admins                []string        `json:"admins"`
 	Channels              []string        `json:"channels"`

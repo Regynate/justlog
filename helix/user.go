@@ -30,10 +30,11 @@ type TwitchApiClient interface {
 }
 
 // NewClient Create helix client
-func NewClient(clientID string, clientSecret string) Client {
+func NewClient(clientID string, clientSecret string, apiServer string) Client {
 	client, err := helixClient.NewClient(&helixClient.Options{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
+		APIBaseURL:   apiServer,
 	})
 	if err != nil {
 		panic(err)
