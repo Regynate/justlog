@@ -1,12 +1,12 @@
 FROM quay.io/goswagger/swagger:latest as build-docs
 WORKDIR /app
 COPY . .
-RUN make docs
+#RUN make docs
 
 FROM node:18-alpine as build-web
 WORKDIR /web
 COPY web .
-COPY --from=build-docs /app/web/public/swagger.json /web/public
+#COPY --from=build-docs /app/web/public/swagger.json /web/public
 RUN yarn install --ignore-optional
 RUN yarn build
 
