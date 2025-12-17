@@ -20,8 +20,9 @@ type Client struct {
 }
 
 var (
-	userCacheByID       sync.Map
-	userCacheByUsername sync.Map
+	userCacheByID          sync.Map
+	userCacheByUsername    sync.Map
+	userCacheByDisplayname sync.Map
 )
 
 type TwitchApiClient interface {
@@ -121,7 +122,7 @@ func (c *Client) GetUsersByUserIds(userIDs []string) (map[string]UserData, error
 				data := &UserData{
 					ID:              user.ID,
 					Login:           user.Login,
-					DisplayName:     user.Login,
+					DisplayName:     user.DisplayName,
 					Type:            user.Type,
 					BroadcasterType: user.BroadcasterType,
 					Description:     user.Description,
@@ -132,6 +133,7 @@ func (c *Client) GetUsersByUserIds(userIDs []string) (map[string]UserData, error
 				}
 				userCacheByID.Store(user.ID, data)
 				userCacheByUsername.Store(user.Login, data)
+				userCacheByDisplayname.Store(strings.ToLower(user.DisplayName), data)
 			}
 		}
 	}
@@ -178,7 +180,7 @@ func (c *Client) GetUsersByUsernames(usernames []string) (map[string]UserData, e
 				data := &UserData{
 					ID:              user.ID,
 					Login:           user.Login,
-					DisplayName:     user.Login,
+					DisplayName:     user.DisplayName,
 					Type:            user.Type,
 					BroadcasterType: user.BroadcasterType,
 					Description:     user.Description,
@@ -189,6 +191,7 @@ func (c *Client) GetUsersByUsernames(usernames []string) (map[string]UserData, e
 				}
 				userCacheByID.Store(user.ID, data)
 				userCacheByUsername.Store(user.Login, data)
+				userCacheByDisplayname.Store(strings.ToLower(user.DisplayName), data)
 			}
 		}
 	}
@@ -199,7 +202,12 @@ func (c *Client) GetUsersByUsernames(usernames []string) (map[string]UserData, e
 		username = strings.ToLower(username)
 		value, ok := userCacheByUsername.Load(username)
 		if !ok {
-			log.Debugf("Could not find username, channel might be banned: %s", username)
+			log.Debugf("Could not find username, searching by displayname: %s", username)
+			value, ok = userCacheByDisplayname.Load(username)
+		}
+
+		if !ok {
+			log.Debugf("Could not find displayname, channel might be banned: %s", username)
 			continue
 		}
 		result[username] = *(value.(*UserData))
