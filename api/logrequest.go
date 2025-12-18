@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -51,9 +52,9 @@ func (s *Server) newLogRequestFromURL(r *http.Request) (logRequest, error) {
 		return logRequest{}, errors.New("route not found")
 	}
 
-	url := strings.TrimRight(path, "/")
+	urlStr := strings.TrimRight(path, "/")
 
-	matches := pathRegex.FindAllStringSubmatch(url, -1)
+	matches := pathRegex.FindAllStringSubmatch(urlStr, -1)
 	if len(matches) == 0 || len(matches[0]) < 5 {
 		return logRequest{}, errors.New("route not found")
 	}
@@ -73,16 +74,16 @@ func (s *Server) newLogRequestFromURL(r *http.Request) (logRequest, error) {
 	request.isChannelRequest = len(params) < 4 || (len(params) >= 4 && params[3] != "user" && params[3] != "userid")
 
 	if params[1] == "channel" {
-		request.channel = params[2]
+		request.channel, _ = url.QueryUnescape(params[2])
 	}
 	if params[1] == "channelid" {
-		request.channelid = params[2]
+		request.channelid, _ = url.QueryUnescape(params[2])
 	}
 	if request.isUserRequest && params[3] == "user" {
-		request.user = params[4]
+		request.user, _ = url.QueryUnescape(params[4])
 	}
 	if request.isUserRequest && params[3] == "userid" {
-		request.userid = params[4]
+		request.userid, _ = url.QueryUnescape(params[4])
 	}
 
 	var err error
