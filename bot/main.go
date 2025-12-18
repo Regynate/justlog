@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"math/rand"
 	"strings"
 	"sync"
@@ -17,15 +18,16 @@ import (
 
 // Bot basic logging bot
 type Bot struct {
-	startTime   time.Time
-	cfg         *config.Config
-	helixClient helix.TwitchApiClient
-	logger      filelog.Logger
-	worker      []*worker
-	channels    map[string]helix.UserData
-	clearchats  sync.Map
-	OptoutCodes sync.Map
-	msgMap      *expiremap.ExpireMap
+	startTime     time.Time
+	cfg           *config.Config
+	helixClient   helix.TwitchApiClient
+	logger        filelog.Logger
+	worker        []*worker
+	channels      map[string]helix.UserData
+	clearchats    sync.Map
+	OptoutCodes   sync.Map
+	msgMap        *expiremap.ExpireMap
+	totalMessages int
 }
 
 type worker struct {
@@ -135,8 +137,8 @@ func (b *Bot) Join(channelNames ...string) {
 
 func (b *Bot) newClient() *twitch.Client {
 	client := twitch.NewClient(b.cfg.Username, "oauth:"+b.cfg.OAuth)
-	client.IrcAddress = b.cfg.Server;
-	
+	client.IrcAddress = b.cfg.Server
+
 	if b.cfg.BotVerified {
 		client.SetJoinRateLimiter(twitch.CreateVerifiedRateLimiter())
 	}
@@ -156,6 +158,9 @@ func (b *Bot) handlePrivateMessage(message twitch.PrivateMessage) {
 		return
 	}
 	b.msgMap.Set(message.ID, true, time.Second*3)
+
+	b.totalMessages++
+	log.Debug(fmt.Printf("Parsing message #%d\n", b.totalMessages))
 
 	b.handlePrivateMessageCommands(message)
 
@@ -183,6 +188,9 @@ func (b *Bot) handleUserNotice(message twitch.UserNoticeMessage) {
 		return
 	}
 	b.msgMap.Set(message.ID, true, time.Second*3)
+
+	b.totalMessages++
+	log.Debug(fmt.Printf("Parsing message #%d\n", b.totalMessages))
 
 	if b.cfg.IsOptedOut(message.User.ID) || b.cfg.IsOptedOut(message.RoomID) {
 		return
@@ -216,6 +224,9 @@ func (b *Bot) handleClearChat(message twitch.ClearChatMessage) {
 	if b.cfg.IsOptedOut(message.TargetUserID) || b.cfg.IsOptedOut(message.RoomID) {
 		return
 	}
+
+	b.totalMessages++
+	log.Debug(fmt.Printf("Parsing message #%d\n", b.totalMessages))
 
 	if message.BanDuration == 0 {
 		count, ok := b.clearchats.Load(message.RoomID)
