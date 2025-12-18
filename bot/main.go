@@ -160,7 +160,7 @@ func (b *Bot) handlePrivateMessage(message twitch.PrivateMessage) {
 	b.msgMap.Set(message.ID, true, time.Second*3)
 
 	b.totalMessages++
-	log.Debug(fmt.Printf("Parsing message #%d\n", b.totalMessages))
+	log.Debug(fmt.Printf("Parsing message #%d", b.totalMessages))
 
 	b.handlePrivateMessageCommands(message)
 
@@ -190,7 +190,7 @@ func (b *Bot) handleUserNotice(message twitch.UserNoticeMessage) {
 	b.msgMap.Set(message.ID, true, time.Second*3)
 
 	b.totalMessages++
-	log.Debug(fmt.Printf("Parsing message #%d\n", b.totalMessages))
+	log.Debug(fmt.Printf("Parsing message #%d", b.totalMessages))
 
 	if b.cfg.IsOptedOut(message.User.ID) || b.cfg.IsOptedOut(message.RoomID) {
 		return
@@ -226,7 +226,7 @@ func (b *Bot) handleClearChat(message twitch.ClearChatMessage) {
 	}
 
 	b.totalMessages++
-	log.Debug(fmt.Printf("Parsing message #%d\n", b.totalMessages))
+	log.Debug(fmt.Printf("Parsing message #%d", b.totalMessages))
 
 	if message.BanDuration == 0 {
 		count, ok := b.clearchats.Load(message.RoomID)
