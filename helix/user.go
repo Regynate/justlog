@@ -191,6 +191,13 @@ func (c *Client) GetUsersByUsernames(usernames []string) (map[string]UserData, e
 				}
 				userCacheByID.Store(user.ID, data)
 				userCacheByUsername.Store(user.Login, data)
+				// HUGE HACK: sometimes we request youtube users explicitly by adding @ in front of their name;
+				// in that case the server returns DisplayName without the @
+				for _, requser := range chunk {
+					if requser == "@"+strings.ToLower(user.DisplayName) {
+						user.DisplayName = "@" + user.DisplayName
+					}
+				}
 				userCacheByDisplayname.Store(strings.ToLower(user.DisplayName), data)
 			}
 		}
